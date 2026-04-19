@@ -154,7 +154,7 @@
 
           <div class="card reveal">
             <div class="card-media">
-              <video poster="images/case-01-poster.jpg" muted loop playsinline preload="none">
+              <video poster="images/case-01-poster.jpg" muted loop playsinline preload="metadata">
                 <source src="images/case-01-hevc.mp4" type='video/mp4; codecs="hvc1"'>
                 <source src="images/case-01.mp4" type="video/mp4">
               </video>
@@ -172,7 +172,7 @@
 
           <div class="card reveal">
             <div class="card-media">
-              <video poster="images/case-02-poster.jpg" muted loop playsinline preload="none">
+              <video poster="images/case-02-poster.jpg" muted loop playsinline preload="metadata">
                 <source src="images/case-02-hevc.mp4" type='video/mp4; codecs="hvc1"'>
                 <source src="images/case-02.mp4" type="video/mp4">
               </video>
@@ -190,7 +190,7 @@
 
           <div class="card reveal">
             <div class="card-media">
-              <video poster="images/case-03-poster.jpg" muted loop playsinline preload="none">
+              <video poster="images/case-03-poster.jpg" muted loop playsinline preload="metadata">
                 <source src="images/case-03-hevc.mp4" type='video/mp4; codecs="hvc1"'>
                 <source src="images/case-03.mp4" type="video/mp4">
               </video>
@@ -208,7 +208,7 @@
 
           <div class="card reveal">
             <div class="card-media">
-              <video poster="images/case-04-poster.jpg" muted loop playsinline preload="none">
+              <video poster="images/case-04-poster.jpg" muted loop playsinline preload="metadata">
                 <source src="images/case-04-hevc.mp4" type='video/mp4; codecs="hvc1"'>
                 <source src="images/case-04.mp4" type="video/mp4">
               </video>
@@ -226,7 +226,7 @@
 
           <div class="card reveal">
             <div class="card-media">
-              <video poster="images/case-05-poster.jpg" muted loop playsinline preload="none">
+              <video poster="images/case-05-poster.jpg" muted loop playsinline preload="metadata">
                 <source src="images/case-05-hevc.mp4" type='video/mp4; codecs="hvc1"'>
                 <source src="images/case-05.mp4" type="video/mp4">
               </video>
@@ -244,7 +244,7 @@
 
           <div class="card reveal">
             <div class="card-media">
-              <video poster="images/case-06-poster.jpg" muted loop playsinline preload="none">
+              <video poster="images/case-06-poster.jpg" muted loop playsinline preload="metadata">
                 <source src="images/case-06-hevc.mp4" type='video/mp4; codecs="hvc1"'>
                 <source src="images/case-06.mp4" type="video/mp4">
               </video>
@@ -262,7 +262,7 @@
 
           <div class="card reveal">
             <div class="card-media">
-              <video poster="images/case-07-poster.jpg" muted loop playsinline preload="none">
+              <video poster="images/case-07-poster.jpg" muted loop playsinline preload="metadata">
                 <source src="images/case-07-hevc.mp4" type='video/mp4; codecs="hvc1"'>
                 <source src="images/case-07.mp4" type="video/mp4">
               </video>
@@ -280,7 +280,7 @@
 
           <div class="card reveal">
             <div class="card-media">
-              <video poster="images/case-08-poster.jpg" muted loop playsinline preload="none">
+              <video poster="images/case-08-poster.jpg" muted loop playsinline preload="metadata">
                 <source src="images/case-08-hevc.mp4" type='video/mp4; codecs="hvc1"'>
                 <source src="images/case-08.mp4" type="video/mp4">
               </video>
@@ -298,7 +298,7 @@
 
           <div class="card reveal">
             <div class="card-media">
-              <video poster="images/case-09-poster.jpg" muted loop playsinline preload="none">
+              <video poster="images/case-09-poster.jpg" muted loop playsinline preload="metadata">
                 <source src="images/case-09-hevc.mp4" type='video/mp4; codecs="hvc1"'>
                 <source src="images/case-09.mp4" type="video/mp4">
               </video>
@@ -415,7 +415,7 @@
 
           <div class="card reveal">
             <div class="card-media card-media-wide">
-              <video poster="images/litmus-poster.jpg" muted loop playsinline preload="none" aria-label="AI agent replay tool — case study">
+              <video poster="images/litmus-poster.jpg" muted loop playsinline preload="metadata" aria-label="AI agent replay tool — case study">
                 <source src="images/litmus-hevc.mp4" type='video/mp4; codecs="hvc1"'>
                 <source src="images/litmus.mp4" type="video/mp4">
               </video>
@@ -433,7 +433,7 @@
 
           <div class="card reveal">
             <div class="card-media card-media-wide">
-              <video poster="images/openclaw-poster.jpg" muted loop playsinline preload="none" aria-label="Semantic LLM cache — case study">
+              <video poster="images/openclaw-poster.jpg" muted loop playsinline preload="metadata" aria-label="Semantic LLM cache — case study">
                 <source src="images/openclaw-hevc.mp4" type='video/mp4; codecs="hvc1"'>
                 <source src="images/openclaw.mp4" type="video/mp4">
               </video>
@@ -675,17 +675,18 @@
 
     document.querySelectorAll('[data-count]').forEach(el => countIO.observe(el));
 
-    // Lazy-play portfolio videos: start loading as they approach viewport,
-    // play when visible, pause when off-screen.
+    // Lazy-play portfolio videos: play when visible, pause when off-screen.
+    // On iOS Safari, play() can reject if data isn't ready — wait for canplay.
+    const tryPlay = (v) => {
+      const attempt = () => v.play().catch(() => {});
+      if (v.readyState >= 2) attempt();
+      else v.addEventListener('canplay', attempt, { once: true });
+    };
     const videoIO = new IntersectionObserver((entries) => {
       entries.forEach(e => {
         const v = e.target;
-        if (e.isIntersecting) {
-          if (v.preload !== 'auto') v.preload = 'auto';
-          v.play().catch(() => {});
-        } else {
-          v.pause();
-        }
+        if (e.isIntersecting) tryPlay(v);
+        else v.pause();
       });
     }, { threshold: 0.1, rootMargin: '400px 0px' });
 
