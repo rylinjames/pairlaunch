@@ -575,30 +575,46 @@
     <div class="container">
       <h2>Ready to build something?</h2>
       <p class="section-sub">Tell us about your project. We'll respond within 24 hours with a free assessment.</p>
-      <form class="contact-form" action="https://formsubmit.co/romirj@gmail.com" method="POST">
-        <input type="hidden" name="_subject" value="New PairLaunch Project Inquiry">
-        <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_template" value="table">
-        <input type="text" name="_honey" style="display:none">
-        <input type="hidden" name="_next" value="https://pairlaunch.com#contact">
+      <div class="form-wrap">
+        <form class="contact-form" id="contactForm" action="https://formsubmit.co/romirj@gmail.com" method="POST">
+          <input type="hidden" name="_subject" value="New PairLaunch Project Inquiry">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_template" value="table">
+          <input type="text" name="_honey" style="display:none">
+          <input type="hidden" name="_next" value="https://pairlaunch.com#contact">
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" id="name" name="name" placeholder="Your name" required>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" placeholder="Your name" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" placeholder="you@company.com" required>
+            </div>
           </div>
           <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" placeholder="you@company.com" required>
+            <label for="message">Tell us about your project</label>
+            <textarea id="message" name="message" rows="5" placeholder="What's the idea? Who's it for? Any deadline?" required></textarea>
           </div>
+          <button type="submit" class="btn btn-primary btn-lg btn-full" id="submitBtn">
+            <span class="btn-label">Send Project Inquiry</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+          <p class="form-error" id="formError" role="alert" hidden>Something went wrong. Try again or email us directly.</p>
+        </form>
+        <div class="form-success" id="formSuccess" role="status" aria-live="polite" hidden>
+          <div class="success-check" aria-hidden="true">
+            <svg viewBox="0 0 52 52" width="72" height="72">
+              <circle class="check-circle" cx="26" cy="26" r="24" fill="none"/>
+              <path class="check-mark" fill="none" d="M14 27l8 8 16-18"/>
+            </svg>
+          </div>
+          <h3>Message sent</h3>
+          <p>We'll reply within 24 hours with a free assessment.</p>
         </div>
-        <div class="form-group">
-          <label for="message">Tell us about your project</label>
-          <textarea id="message" name="message" rows="5" placeholder="What's the idea? Who's it for? Any deadline?" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary btn-lg btn-full">Send Project Inquiry</button>
-      </form>
-      <p class="contact-alt">We'll respond within 24 hours.</p>
+      </div>
+      <p class="contact-alt">Or email <a href="mailto:romirj@gmail.com">romirj@gmail.com</a> directly.</p>
     </div>
   </section>
 
@@ -733,6 +749,34 @@
       const scrolled = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
       progressBar.style.width = scrolled + '%';
     }, { passive: true });
+
+    // Contact form: AJAX submit with loading spinner + animated success state.
+    // Falls back to native form submission if the AJAX endpoint is unreachable.
+    const form = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const formSuccess = document.getElementById('formSuccess');
+    const formError = document.getElementById('formError');
+    if (form) {
+      form.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        formError.hidden = true;
+        submitBtn.classList.add('is-loading');
+        try {
+          const res = await fetch('https://formsubmit.co/ajax/romirj@gmail.com', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            body: new FormData(form),
+          });
+          if (!res.ok) throw new Error('bad status');
+          form.hidden = true;
+          formSuccess.hidden = false;
+          formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } catch (err) {
+          submitBtn.classList.remove('is-loading');
+          formError.hidden = false;
+        }
+      });
+    }
 
     // Sticky CTA — show once hero is out of view
     const stickyCta = document.getElementById('stickyCta');
