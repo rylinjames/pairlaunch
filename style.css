@@ -175,11 +175,14 @@ body {
   top: 0;
   left: 0;
   height: 3px;
-  width: 0%;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
   background: linear-gradient(90deg, var(--accent), var(--accent-pink));
   z-index: 1001;
-  transition: width 0.05s linear;
   box-shadow: 0 0 12px rgba(139, 92, 246, 0.45);
+  pointer-events: none;
 }
 
 .container {
