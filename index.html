@@ -767,11 +767,16 @@
     const hydrate = (v) => {
       if (v.dataset.hydrated) return;
       v.dataset.hydrated = '1';
-      v.querySelectorAll('source[data-src]').forEach(s => {
-        s.src = s.dataset.src;
-        s.removeAttribute('data-src');
-      });
-      v.load();
+      const run = () => {
+        v.querySelectorAll('source[data-src]').forEach(s => {
+          s.src = s.dataset.src;
+          s.removeAttribute('data-src');
+        });
+        v.load();
+      };
+      // Defer to idle time so video load/parse doesn't collide with scroll frames
+      if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 1500 });
+      else setTimeout(run, 0);
     };
     const tryPlay = (v) => {
       const attempt = () => v.play().catch(() => {});
@@ -784,7 +789,7 @@
         hydrate(e.target);
         hydrateIO.unobserve(e.target);
       });
-    }, { threshold: 0, rootMargin: '100% 0px' });
+    }, { threshold: 0, rootMargin: '25% 0px' });
     const playIO = new IntersectionObserver((entries) => {
       entries.forEach(e => {
         const v = e.target;
