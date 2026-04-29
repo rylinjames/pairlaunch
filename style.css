@@ -357,10 +357,18 @@ a { color: inherit; text-decoration: none; }
 }
 
 .gradient-text .split-word {
+  /* fallback color for browsers/webviews that don't support background-clip: text
+     (notably Instagram/Facebook in-app browsers on iOS) */
+  color: #c9a0ff;
   background: inherit;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .gradient-text .split-word {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }
 
 .hero h1 > .split-word:nth-child(1) { animation-delay: 0.20s; }
